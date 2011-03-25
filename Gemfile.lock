@@ -29,6 +29,5 @@ PLATFORMS
 DEPENDENCIES
   heroku
   json
-  rack
   shotgun
   sinatra (~> 1.2.1)

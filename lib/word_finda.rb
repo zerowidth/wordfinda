@@ -1,6 +1,6 @@
 require "bundler"
 
-Bundler.require :defaults
+Bundler.require :default
 
 module WordFinda
 

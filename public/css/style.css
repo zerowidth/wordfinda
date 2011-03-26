@@ -83,9 +83,48 @@ button {  width: auto; overflow: visible; }
 
 /* ***** */
 
-#board {
-  padding: 50px;
+#container {
+  /* text-align: center; */
 }
+
+#main {
+  margin: 10px auto;
+  border: 1px solid red;
+  width: 640px;
+  padding: 10px;
+}
+
+#header {
+  margin-bottom: 10px;
+}
+
+#header #status {
+  font-size: 2em;
+}
+
+#header #time_remaining {
+  float: right;
+  line-height: 2em;
+}
+
+#header #time_remaining span {
+  font-weight: bold;
+  font-family: monospace;
+}
+
+#game_info {
+  margin-left: 220px;
+  border: 1px solid blue;
+}
+
+#game_info > div {
+  margin-bottom: 10px;
+}
+
+#board {
+  float: left;
+}
+
 
 #board table {
   border-spacing: 2px;
@@ -98,7 +137,7 @@ button {  width: auto; overflow: visible; }
   -webkit-border-radius: 3px;
 }
 
-#board td {
+#board td, button.vote {
   font-size: 2em;
   font-family: monospace;
   font-weight: bold;
@@ -112,9 +151,6 @@ button {  width: auto; overflow: visible; }
   text-shadow: -1px 1px 1px white;
   filter: dropshadow(color=white, offx=-1, offy=1);
 
-  width: 1.5em;
-  height: 1.5em;
-
   text-align: center;
   vertical-align: middle;
 
@@ -125,10 +161,154 @@ button {  width: auto; overflow: visible; }
   -webkit-border-radius: 3px;
 }
 
+#board td {
+  width: 36px;
+  height: 36px;
+}
+
 #board td:hover {
   background: #AAA;
+  -webkit-box-shadow: inset -1px 2px 5px #CCC;
+  -moz-box-shadow: inset -1px 2px 5px #CCC;
+  box-shadow: inset -1px 2px 5px #CCC;
   text-shadow: -1px 1px 1px #CCC;
   filter: dropshadow(color=#CCC, offx=-1, offy=1);
+}
+
+#players p, #words p, #scores > p, #vote > p, #votes > p {
+  font-weight: bold;
+}
+
+#players ul, #words ul, #scores ul, #votes ul {
+  margin: 0;
+  padding: 0;
+  line-height: 1.75em;
+}
+
+#scores > ul {
+  margin-left: 1em;
+}
+
+#players li, #words li, #votes li, #scores ul.words li {
+  list-style-type: none;
+  font-weight: normal;
+  display: inline;
+  margin: 0;
+  padding: 0.25em 0.5em;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+}
+
+#scores > ul > li {
+  list-style-type: none;
+  margin-top: 0.5em;
+  font-weight: bold;
+}
+
+#players li {
+  background: #448;
+  color: #EEE;
+}
+
+#words li {
+  background: #080;
+  color: #EEE;
+}
+
+#words li.waiting {
+  color: #000;
+  font-style: italic;
+  background: #CCC;
+}
+
+#words li.invalid {
+  color: #FFF;
+  font-style: italic;
+  background: #800;
+}
+
+#word_form {
+  text-align: center;
+}
+
+#word_form input {
+  font-size: 2em;
+  font-family: monospace;
+  font-weight: bold;
+  width: 80%;
+}
+
+#votes li {
+  background: #CCC;
+  font-style: italic;
+}
+
+#votes li.yes {
+  font-style: normal;
+  background: #080;
+  color: #EEE;
+}
+
+#votes li.no {
+  font-style: normal;
+  background: #800;
+  color: #EEE;
+}
+
+#scores ul.words li {
+  background: #080;
+  color: #EEE;
+}
+
+#scores ul.words li.canceled {
+  color: #444;
+  background: #CCC;
+  font-style: italic;
+  text-decoration: line-through;
+}
+
+#scores span.score {
+  font-size: 1.142em;
+  font-weight: bold;
+  color: #008;
+}
+
+#vote #word {
+  text-align: center;
+  font-size: 2em;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+#vote_buttons {
+  margin-top: 10px;
+  text-align: center;
+}
+
+#vote_buttons button:first-child {
+  margin-left: 10px;
+}
+
+#vote_buttons button {
+  margin-right: 10px;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+button.yes:hover {
+  border-color: #040;
+  background: #080;
+  color: #060;
+  text-shadow: -1px 1px 1px #8F8;
+  filter: dropshadow(color=#8F8, offx=-1, offy=1);
+}
+button.no:hover {
+  border-color: #400;
+  background: #800;
+  color: #600;
+  text-shadow: -1px 1px 1px #F88;
+  filter: dropshadow(color=#F88, offx=-1, offy=1);
 }
 
 /* ***** */

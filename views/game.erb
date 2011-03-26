@@ -1,3 +1,8 @@
+<div id="header">
+  <div id="time_remaining">Time remaining: <span>2:10</span></div>
+  <div id="status">Game In Progress</div>
+</div>
+
 <div id="board">
   <table>
     <tr>
@@ -37,3 +42,82 @@
     </tr>
   </table>
 </div>
+
+<div id="game_info">
+
+  <div id="players">
+    <p>Players</p>
+    <ul>
+      <li>Nathan</li>
+      <li>guantes</li>
+    </ul>
+  </div>
+
+  <div id="words">
+    <p>Words</p>
+    <ul>
+      <li>foo</li>
+      <li>bar</li>
+      <li>baz</li>
+      <li>mumble</li>
+      <li class="waiting">blah</li>
+      <li class="invalid">wrong</li>
+    </ul>
+  </div>
+
+  <div id="word_form">
+    <form>
+      <input type="text" name="found" placeholder="words go here --> O:">
+    </form>
+  </div>
+
+  <div id="scores">
+    <p>Scores</p>
+    <ul>
+      <li>
+        <p>nathan <span class="score">380</span></p>
+        <ul class="words">
+          <li>foo</li>
+          <li>foo</li>
+          <li>foo</li>
+          <li class="canceled">foo</li>
+          <li class="canceled">foo</li>
+          <li class="canceled">foo</li>
+          <li class="canceled">foo</li>
+          <li class="canceled">foo</li>
+        </ul>
+      </li>
+      <li>
+        <p>guantes <span class="score">271</span></p>
+        <ul class="words" class="clearfix">
+          <li>foo</li>
+          <li>foo</li>
+          <li>foo</li>
+          <li class="canceled">foo</li>
+          <li class="canceled">foo</li>
+          <li class="canceled">foo</li>
+          <li class="canceled">foo</li>
+          <li class="canceled">foo</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <div id="vote">
+    <p>Vote</p>
+    <p id="word">mumdng</p>
+    <div id="vote_buttons">
+      <button type="button" name="yes" class="vote yes">Yes</button>
+      <button type="button" name="no" class="vote no">No</button>
+    </div>
+  </div>
+  <div id="votes">
+    <p>Votes</p>
+    <ul>
+      <li>sargon</li>
+      <li class="yes">nathan</li>
+      <li class="no">guantes</li>
+    </ul>
+  </div>
+</div>
+

@@ -1,4 +1,5 @@
 require "bundler"
+require "erb"
 
 Bundler.require :default
 
@@ -17,7 +18,7 @@ module WordFinda
     end
 
     get "/" do
-      "let's play!"
+      erb :index
     end
   end
 end

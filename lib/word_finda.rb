@@ -20,6 +20,11 @@ module WordFinda
     get "/" do
       erb :index
     end
+
+    get "/game" do
+      erb :game
+    end
+
   end
 end
 

@@ -26,7 +26,7 @@ ins { background-color:#ff9; color:#000; text-decoration:none; }
 mark { background-color:#ff9; color:#000; font-style:italic; font-weight:bold; }
 del { text-decoration: line-through; }
 abbr[title], dfn[title] { border-bottom:1px dotted; cursor:help; }
-table { border-collapse:collapse; border-spacing:0; }
+/* table { border-collapse:collapse; border-spacing:0; } */
 hr { display:block; height:1px; border:0; border-top:1px solid #ccc; margin:1em 0; padding:0; }
 input, select { vertical-align:middle; }
 
@@ -83,7 +83,53 @@ button {  width: auto; overflow: visible; }
 
 /* ***** */
 
+#board {
+  padding: 50px;
+}
 
+#board table {
+  border-spacing: 2px;
+
+  background: #CCC;
+
+  border: 1px solid #888;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+}
+
+#board td {
+  font-size: 2em;
+  font-family: monospace;
+  font-weight: bold;
+
+  background: #DDD;
+
+  -webkit-box-shadow: inset -1px 2px 5px white;
+  -moz-box-shadow: inset -1px 2px 5px white;
+  box-shadow: inset -1px 2px 5px white;
+
+  text-shadow: -1px 1px 1px white;
+  filter: dropshadow(color=white, offx=-1, offy=1);
+
+  width: 1.5em;
+  height: 1.5em;
+
+  text-align: center;
+  vertical-align: middle;
+
+  border: 1px solid #888;
+
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+}
+
+#board td:hover {
+  background: #AAA;
+  text-shadow: -1px 1px 1px #CCC;
+  filter: dropshadow(color=#CCC, offx=-1, offy=1);
+}
 
 /* ***** */
 

@@ -1,44 +1,51 @@
+<script type="text/javascript">
+  head.ready(function() {
+    game.init(<%= game.player_commands(session[:id]).to_json %>);
+  });
+</script>
+
+
 <div id="header">
-  <div id="time_remaining">Time remaining: <span>2:10</span></div>
-  <div id="status">Game In Progress</div>
+  <div id="time_remaining" style="display:none">Time remaining: <span></span></div>
+  <div id="status"></div>
 </div>
 
 <div id="board">
   <table>
     <tr>
-      <td>I</td>
-      <td>E</td>
-      <td>A</td>
-      <td>D</td>
-      <td>R</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
     <tr>
-      <td>S</td>
-      <td>Qu</td>
-      <td>N</td>
-      <td>E</td>
-      <td>D</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
     <tr>
-      <td>N</td>
-      <td>R</td>
-      <td>O</td>
-      <td>A</td>
-      <td>C</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
     <tr>
-      <td>A</td>
-      <td>U</td>
-      <td>E</td>
-      <td>E</td>
-      <td>S</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
     <tr>
-      <td>P</td>
-      <td>A</td>
-      <td>D</td>
-      <td>O</td>
-      <td>O</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
   </table>
 </div>
@@ -48,76 +55,83 @@
   <div id="players">
     <p>Players</p>
     <ul>
-      <li>Nathan</li>
-      <li>guantes</li>
+      <%# <li>Nathan</li> %>
+      <%# <li>guantes</li> %>
     </ul>
   </div>
 
-  <div id="words">
+  <div id="words" style="display:none;">
     <p>Words</p>
     <ul>
-      <li>foo</li>
-      <li>bar</li>
-      <li>baz</li>
-      <li>mumble</li>
-      <li class="waiting">blah</li>
-      <li class="invalid">wrong</li>
+      <%# <li>foo</li> %>
+      <%# <li>bar</li> %>
+      <%# <li>baz</li> %>
+      <%# <li>mumble</li> %>
+      <%# <li class="waiting">blah</li> %>
+      <%# <li class="invalid">wrong</li> %>
     </ul>
   </div>
 
-  <div id="word_form">
+  <div id="word_form" style="display:none;">
     <form>
       <input type="text" name="found" placeholder="words go here --> O:">
     </form>
   </div>
 
-  <div id="scores">
+  <div id="scores" style="display:none;">
     <p>Scores</p>
     <ul>
-      <li>
-        <p>nathan <span class="score">380</span></p>
-        <ul class="words">
-          <li>foo</li>
-          <li>foo</li>
-          <li>foo</li>
-          <li class="canceled">foo</li>
-          <li class="canceled">foo</li>
-          <li class="canceled">foo</li>
-          <li class="canceled">foo</li>
-          <li class="canceled">foo</li>
-        </ul>
-      </li>
-      <li>
-        <p>guantes <span class="score">271</span></p>
-        <ul class="words" class="clearfix">
-          <li>foo</li>
-          <li>foo</li>
-          <li>foo</li>
-          <li class="canceled">foo</li>
-          <li class="canceled">foo</li>
-          <li class="canceled">foo</li>
-          <li class="canceled">foo</li>
-          <li class="canceled">foo</li>
-        </ul>
-      </li>
+      <%# <li> %>
+      <%#   <p>nathan <span class="score">380</span></p> %>
+      <%#   <ul class="words"> %>
+      <%#     <li>foo</li> %>
+      <%#     <li>foo</li> %>
+      <%#     <li>foo</li> %>
+      <%#     <li class="canceled">foo</li> %>
+      <%#     <li class="canceled">foo</li> %>
+      <%#     <li class="canceled">foo</li> %>
+      <%#     <li class="canceled">foo</li> %>
+      <%#     <li class="canceled">foo</li> %>
+      <%#   </ul> %>
+      <%# </li> %>
+      <%# <li> %>
+      <%#   <p>guantes <span class="score">271</span></p> %>
+      <%#   <ul class="words" class="clearfix"> %>
+      <%#     <li>foo</li> %>
+      <%#     <li>foo</li> %>
+      <%#     <li>foo</li> %>
+      <%#     <li class="canceled">foo</li> %>
+      <%#     <li class="canceled">foo</li> %>
+      <%#     <li class="canceled">foo</li> %>
+      <%#     <li class="canceled">foo</li> %>
+      <%#     <li class="canceled">foo</li> %>
+      <%#   </ul> %>
+      <%# </li> %>
     </ul>
   </div>
 
-  <div id="vote">
+  <div id="vote" style="display:none;">
     <p>Vote</p>
-    <p id="word">mumdng</p>
+    <p id="word"><%# mumdng %></p>
     <div id="vote_buttons">
       <button type="button" name="yes" class="vote yes">Yes</button>
       <button type="button" name="no" class="vote no">No</button>
     </div>
   </div>
-  <div id="votes">
+
+  <div id="votes" style="display:none;">
     <p>Votes</p>
     <ul>
-      <li>sargon</li>
-      <li class="yes">nathan</li>
-      <li class="no">guantes</li>
+      <%# <li>sargon</li> %>
+      <%# <li class="yes">nathan</li> %>
+      <%# <li class="no">guantes</li> %>
     </ul>
   </div>
 </div>
 
+
+<div>
+  <pre>
+  <%= require 'pp'; h game.pretty_inspect %>
+  </pre>
+</div>

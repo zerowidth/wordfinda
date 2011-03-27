@@ -1,0 +1,11 @@
+<form method="post" action="/name">
+  Oh, hello! What's your name?
+  <input type="text" id="name" name="name" value="" placeholder="your name here" />
+  <button type="submit" name="go">Let's play!</button>
+</form>
+
+<script type="text/javascript">
+  head.ready(function() {
+    $('#name').focus().select();
+  });
+</script>

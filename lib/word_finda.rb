@@ -6,6 +6,7 @@ Bundler.require :default
 
 module WordFinda
 
+  require "word_finda/state"
   require "word_finda/game"
   require "word_finda/board"
 
@@ -17,13 +18,17 @@ module WordFinda
       alias_method :h, :escape_html
     end
 
-    attr_reader :redis
-    attr_reader :game
+    attr_reader :dalli
 
     def initialize(*args)
-      @redis = Redis.new
-      @game = Game.new
+      @dalli = Dalli::Client.new("127.0.0.1:11211")
       super
+    end
+
+    # render json
+    def json(value)
+      content_type :json
+      value.to_json
     end
 
     get "/" do
@@ -47,12 +52,38 @@ module WordFinda
     get "/game" do
       redirect "/" unless session[:id]
 
-      game.player_join session[:name], session[:id]
+      @game = Game.new(@dalli, "main")
+      @game.player_join session[:name], session[:id]
+      @game.save
 
       erb :game
     end
 
     get "/game.json" do
+      @game = Game.new(@dalli, "main")
+      @game.player_join session[:name], session[:id]
+      @game.save
+
+      json @game.commands_for_player(session[:id], (params[:last_command] || -1).to_i)
+    end
+
+    post "/game" do
+      @game = Game.new(@dalli, "main")
+
+      # .values since it gets posted as a parallel array
+      params[:commands].values.each do |command|
+        @game.process_command(command, session[:id])
+      end
+
+      @game.save
+
+      json @game.commands_for_player(session[:id], (params[:last_command] || -1).to_i)
+    end
+
+    get "/game/reset" do
+      @game = Game.new(@dalli, "main")
+      @game.destroy
+      redirect "/game"
     end
 
   end

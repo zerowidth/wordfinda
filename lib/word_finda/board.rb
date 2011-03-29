@@ -31,35 +31,25 @@ module WordFinda
     ]
     # ADVANCEDCUBE = %w{qu m l k u i}
 
-    attr_reader :board_id, :board
-
-    def initialize(board_id=nil)
-      @board = create_board(board_id)
-    end
-
-    def include?(word)
-      find_word word_to_array(word)
-    end
-
-    # ----- private -----
-    private
-
-    def create_board(board_id=nil)
+    def self.generate
       cubes = CUBES.dup
       board = []
-      if board_id
-        srand(board_id)
-        @board_id = board_id
-      else
-        @board_id = rand(100000000)
-        srand(@board_id)
-      end
+      srand(rand(100000))
       while cubes.size > 0 do
         cube = cubes.delete_at(rand(cubes.size-1))
         board.push cube[rand(6)]
       end
-      @board_size = 5 # hardcoded for now
       board
+    end
+
+    attr_reader :board
+
+    def initialize(board)
+      @board = board
+    end
+
+    def include?(word)
+      find_word word_to_array(word)
     end
 
     # ----- board search -----
@@ -95,10 +85,10 @@ module WordFinda
     def adjacent? (key1, key2)
       return true unless key1 && key2 # any key is adjacent to nothingness! (nil)
       # do the search for key2 around key1 in a square grid
-      key1x = key1 % @board_size # get the x position in the grid
-      key1y = (key1-key1x) / @board_size # and the y position
-      key2x = key2 % @board_size # x position of second key
-      key2y = (key2-key2x) / @board_size # y position of second key
+      key1x = key1 % 5 # get the x position in the grid
+      key1y = (key1-key1x) / 5 # and the y position
+      key2x = key2 % 5 # x position of second key
+      key2y = (key2-key2x) / 5 # y position of second key
       # if the key x/y positions are within 1 of each other, then key2 is
       # in one of the 9 positions surrounding key1 (does not wrap!)
       (key1x-key2x).abs <= 1 && (key1y-key2y).abs <= 1

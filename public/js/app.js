@@ -160,7 +160,7 @@ game.process_commands = function(commands) {
         $('#vote').fadeOut();
         $('#votes').fadeOut();
 
-        $('#scores ul').html();
+        $('#scores ul').html('');
         $('#scores').fadeIn();
         $.each(command.results, function(i, r) {
           var $li = $('<li></li>').hide();
@@ -259,6 +259,10 @@ game.process_commands = function(commands) {
         $('#vote').fadeIn();
         $('#vote #word').html(command.word).fadeIn();
         $('#votes li').removeClass('no').removeClass('yes');
+
+        var expires = Date.parse(command.expires);
+        var diff = expires - Date.now();
+        self.start_timer(expires);
 
       case 'player_vote':
 

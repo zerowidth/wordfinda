@@ -18,10 +18,10 @@ module WordFinda
       alias_method :h, :escape_html
     end
 
-    attr_reader :dalli
+    attr_reader :cache
 
     def initialize(*args)
-      @dalli = Dalli::Client.new("127.0.0.1:11211")
+      @cache = Dalli::Client.new("127.0.0.1:11211")
       super
     end
 
@@ -52,7 +52,7 @@ module WordFinda
     get "/game" do
       redirect "/" unless session[:id]
 
-      @game = Game.new(@dalli, "main")
+      @game = Game.new(cache, "main")
       @game.player_join session[:name], session[:id]
       @game.save
 
@@ -60,7 +60,7 @@ module WordFinda
     end
 
     get "/game.json" do
-      @game = Game.new(@dalli, "main")
+      @game = Game.new(cache, "main")
       @game.player_join session[:name], session[:id]
       @game.save
 
@@ -68,7 +68,7 @@ module WordFinda
     end
 
     post "/game" do
-      @game = Game.new(@dalli, "main")
+      @game = Game.new(cache, "main")
 
       # .values since it gets posted as a parallel array
       params[:commands].values.each do |command|
@@ -81,7 +81,7 @@ module WordFinda
     end
 
     get "/game/reset" do
-      @game = Game.new(@dalli, "main")
+      @game = Game.new(cache, "main")
       @game.destroy
       redirect "/game"
     end

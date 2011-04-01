@@ -9,7 +9,6 @@ module WordFinda
       unless @data = cache.get(key)
         @data = {
           :state => :waiting, # :starting :in_progress :voting :results
-          :state_expires => nil,
           :commands => [],
           :players => {},
           :board => nil,
@@ -26,7 +25,7 @@ module WordFinda
     end
 
     def save
-      cache.set(key, @data, 1800) # expire in 30 minutes
+      cache.set(key, @data, 3600) # expire in 30 minutes
     end
 
     def destroy
@@ -43,8 +42,14 @@ module WordFinda
       when :starting
         start_game
       when :in_progress
-        # start_voting
-        show_results
+        if voting_required?
+          start_voting
+        else
+          show_results
+        end
+      when :voting
+        save_current_vote
+        next_vote
       end
     end
 
@@ -54,6 +59,8 @@ module WordFinda
         wait_for_start
       when "submit_word"
         submit_word_for_player(cmd["word"].downcase.strip, player_id)
+      when "player_vote"
+        submit_vote_for_player(cmd["word"], player_id, cmd["vote"])
       else
         puts "unknown command: #{cmd.inspect}"
       end
@@ -70,21 +77,103 @@ module WordFinda
     def start_game
       @data[:state] = :in_progress
       board = @data[:board] = Board.generate.map { |c| c.capitalize }
-      expires = Time.now + 10 # 180
+      expires = Time.now + 30 # 180
       add_command :game_begin, :expires => expires, :board => board
     end
 
     def submit_word_for_player(word, player_id)
       if state == :in_progress && word.size > 3 && board.include?(word)
+        if Aspell.new.check(word)
+          player_words[player_id][:accepted] << word
+        else
+          player_words[player_id][:require_vote] << word
+        end
         add_command :accept_word, :word => word, :player_id => player_id
       else
         add_command :reject_word, :word => word, :player_id => player_id
       end
     end
 
+    def submit_vote_for_player(word, player_id, vote)
+      add_command :player_vote, :id => player_id, :word => word, :vote => vote
+      if word == voting[:unknown].first &&
+        player_words[player_id][:require_vote].include?(word) && vote == "false"
+        player_words[player_id][:require_vote].delete(word)
+        player_words[player_id][:rejected] << word
+        voting[:rejected] << voting[:unknown].shift
+        next_vote
+      end
+    end
+
+    def voting_required?
+      player_words.any? { |id, words| words[:require_vote].size > 0 }
+    end
+
     def start_voting
       @data[:state] = :voting
       add_command :game_vote, :board => board.board.map { |c| c.capitalize }
+
+      player_words.each do |player_id, words|
+        if words.all? { |key, list| list.empty? }
+          # sorry, this player can't vote, no words were submitted
+          add_command :no_voting, :player_id => player_id
+        else
+          # let everyone know this player is allowed to participate
+          add_command :player_voting, :id => player_id, :name => players[player_id]
+          voting[:unknown].concat words[:require_vote]
+        end
+      end
+      next_vote
+    end
+
+    def next_vote
+      if voting[:unknown].first
+        expires = Time.now + 30
+        players_for_vote.each do |player_id|
+          add_command :vote,
+            :word => voting[:unknown].first,
+            :player_id => player_id,
+            :expires => expires
+        end
+      else
+        # done voting
+        show_results
+      end
+    end
+
+    def save_current_vote
+      word = voting[:unknown].first
+      votes = {:yes => [], :no => []}
+      commands.select do |command|
+        command.first == :player_vote && command.last[:word] == word
+      end.each do |command|
+        player_id = command.last[:id]
+        if command.last[:vote]
+          votes[:yes].push(player_id).uniq!
+          votes[:no].delete player_id
+        else
+          votes[:no].push(player_id).uniq!
+          votes[:yes].delete player_id
+        end
+      end
+
+      player_id = player_words.detect do |id, words|
+        words[:require_vote].include?(word)
+      end.first
+
+      return unless player_id
+
+      if votes[:no].size >= votes[:yes].size
+        # reject
+        player_words[player_id][:require_vote].delete(word)
+        player_words[player_id][:rejected] << word
+        voting[:rejected] << voting[:unknown].shift
+      else
+        # accept
+        player_words[player_id][:require_vote].delete(word)
+        player_words[player_id][:accepted] << word
+        voting[:accepted] << voting[:unknown].shift
+      end
     end
 
     def show_results
@@ -104,11 +193,22 @@ module WordFinda
       @data[:player_words]
     end
 
+    def players_for_vote
+      player_words.select do |player_id, words|
+        words.any? { |key, list| !list.empty? }
+      end.map { |player_id, words| player_id }
+    end
+
+    def voting
+      @data[:voting]
+    end
+
     def board
       Board.new @data[:board].map { |c| c.downcase }
     end
 
     def add_command(name, data={})
+      puts "adding command: #{name} #{data.inspect}"
       commands << [name, data]
     end
 
@@ -118,7 +218,7 @@ module WordFinda
 
     def latest_game_state
       commands.reverse.detect do |command|
-        command.first.to_s.start_with?("game_")
+        command.first.to_s.start_with?("game_") || command.first == :vote
       end
     end
 
@@ -126,8 +226,8 @@ module WordFinda
       unless players[id]
         players[id] = name
         player_words[id] = {
-          :submitted => [],
           :accepted => [],
+          :require_vote => [],
           :rejected => [],
           :duplicates => []
         }
@@ -141,11 +241,25 @@ module WordFinda
         params.merge(:cmd => cmd, :seq => i)
       end
 
-      latest = converted.reverse.detect { |cmd| cmd[:cmd].to_s.start_with?("game_") }
+      latest_game = converted.reverse.detect { |cmd| cmd[:cmd].to_s.start_with?("game_") }
+      latest_vote = converted.reverse.detect do |cmd|
+        cmd[:cmd] == :vote && cmd[:player_id] == player_id
+      end
 
       return converted.delete_if do |cmd|
-        (cmd[:cmd].to_s.start_with?("game_") && cmd != latest) ||
+        # remove commands before than the last seen command, if applicable
         (last && last <= converted.size && cmd[:seq] <= last) ||
+
+        # remove any game state commands except the latest one
+        (cmd[:cmd].to_s.start_with?("game_") && cmd != latest_game) ||
+
+        # remove any vote commands that aren't the latest one
+        (latest_vote && cmd[:cmd] == :vote && cmd != latest_vote) ||
+
+        # remove any player vote commands that are before the latest vote
+        (latest_vote && cmd[:cmd] == :player_vote && cmd[:seq] < latest_vote[:seq]) ||
+
+        # remove anything that has a player id that isn't for this player
         (cmd[:player_id] && cmd[:player_id] != player_id)
       end
     end

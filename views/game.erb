@@ -114,9 +114,14 @@
     <p>Vote</p>
     <p id="word"><%# mumdng %></p>
     <div id="vote_buttons">
-      <button type="button" name="yes" class="vote yes">Yes</button>
-      <button type="button" name="no" class="vote no">No</button>
+      <button type="button" id="vote_yes" name="vote_yes" class="vote yes">Yes</button>
+      <button type="button" id="vote_no" name="vote_no" class="vote no">No</button>
     </div>
+  </div>
+
+  <div id="no_voting" style="display:none;">
+    <p>Vote</p>
+    <p>Sorry, you didn't submit any words. No voting for you!</p>
   </div>
 
   <div id="votes" style="display:none;">

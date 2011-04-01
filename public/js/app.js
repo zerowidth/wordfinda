@@ -36,6 +36,17 @@ game.bind_events = function() {
     $('#word_form input').val('');
     return false;
   });
+
+  $('#vote_yes').click(function() {
+    game.send_command('player_vote', {word: $('#vote #word').html(), vote: true});
+    return false;
+  });
+
+  $('#vote_no').click(function() {
+    game.send_command('player_vote', {word: $('#vote #word').html(), vote: false});
+    return false;
+  });
+
 };
 
 game.send_command = function(command, data) {
@@ -46,6 +57,7 @@ game.send_command = function(command, data) {
     type: 'post',
     data: {commands: [$.extend({}, {command: command}, data)], last_command: last},
     dataType: 'json',
+    beforeSend: function(xhr) {xhr.setRequestHeader('Accept', 'application/json'); },
     success: function(data, textStatus, jqXHR) {
       game.process_commands(data);
     },
@@ -122,8 +134,13 @@ game.process_commands = function(commands) {
           $($('#board td')[i]).html(cube);
         });
 
+        $('#vote #word').html(command.word);
+
         $('#words').fadeOut();
         $('#word_form').fadeOut();
+
+        $('#votes ul').html('');
+        $('#votes').fadeIn();
 
         break;
 
@@ -138,6 +155,8 @@ game.process_commands = function(commands) {
         $('#words').fadeOut();
         $('#word_form').fadeOut();
 
+        $('#vote').fadeOut();
+        $('#votes').fadeOut();
 
         break;
 
@@ -147,7 +166,7 @@ game.process_commands = function(commands) {
       case 'player_join':
         var id = 'player_' + command.id;
         if(!$('#' + id).length) {
-          var $li = $('<li id="' + id + '" style="display:none;">' + command.name + '</li>');
+          var $li = $('<li id="player_' + id + '" style="display:none;">' + command.name + '</li>');
           $('#players ul').append($li);
           $li.fadeIn();
         }
@@ -196,11 +215,34 @@ game.process_commands = function(commands) {
 
       // voting
 
-      case 'vote':
-        // voting on a word
+      case 'no_voting':
+        // this player isn't allowed to vote
         break;
 
+      case 'player_voting':
+        // list of players who are voting
+        var $li = $('<li id="vote_' + command.id + '">' + command.name + '</li>').hide();
+        $('#votes ul').append($li);
+        $li.fadeIn();
+
+        break;
+
+      case 'vote':
+
+        $('#vote').fadeIn();
+        $('#vote #word').html(command.word).fadeIn();
+        $('#votes li').removeClass('no').removeClass('yes');
+
       case 'player_vote':
+
+        if(command.vote == "true") {
+          log($('#votes #vote_' + command.id).length);
+          $('#votes #vote_' + command.id).removeClass('no').addClass('yes');
+        }
+        else {
+          log($('#votes #vote_' + command.id).length);
+          $('#votes #vote_' + command.id).removeClass('yes').addClass('no');
+        }
         break;
 
       default:

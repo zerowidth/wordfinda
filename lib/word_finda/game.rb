@@ -281,6 +281,9 @@ module WordFinda
         # remove any game state commands except the latest one
         (cmd[:cmd].to_s.start_with?("game_") && cmd != latest_game) ||
 
+        # remove vote commands that don't apply (on full reload)
+        (latest_game[:cmd] != :game_vote && cmd[:cmd] == :vote) ||
+
         # remove any vote commands that aren't the latest one
         (latest_vote && cmd[:cmd] == :vote && cmd != latest_vote) ||
 

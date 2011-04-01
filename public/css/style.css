@@ -267,6 +267,11 @@ button {  width: auto; overflow: visible; }
   text-decoration: line-through;
 }
 
+#scores ul.words li.rejected {
+  background: #800;
+  color: #EEE;
+}
+
 #scores span.score {
   font-size: 1.142em;
   font-weight: bold;

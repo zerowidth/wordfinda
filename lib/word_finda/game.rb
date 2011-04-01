@@ -178,7 +178,35 @@ module WordFinda
 
     def show_results
       @data[:state] = :results
-      add_command :game_results, :board => board.board.map { |c| c.capitalize }
+
+      # find and remove duplicates first
+      all_words = Hash.new { |h,k| h[k] = [] }
+      player_words.each do |player_id, words|
+        words[:accepted].each { |word| all_words[word] << player_id }
+      end
+      all_words.each do |word, players| 
+        if players.size > 1
+          players.each do |player_id|
+            player_words[player_id][:accepted].delete word
+            player_words[player_id][:duplicates] << word
+          end
+        end
+      end
+
+      results = []
+
+      player_words.each do |player_id, words|
+        score = words[:accepted].map { |w| score_for(w) }.inject(0) { |m,x| m + x }
+        results << {
+          :name => players[player_id],
+          :score => score,
+          :words => words
+        }
+      end
+
+      add_command :game_results,
+        :board => board.board.map { |c| c.capitalize },
+        :results => results.sort_by {|r| -r[:score] } # reverse sort
     end
 
     def state
@@ -261,6 +289,23 @@ module WordFinda
 
         # remove anything that has a player id that isn't for this player
         (cmd[:player_id] && cmd[:player_id] != player_id)
+      end
+    end
+
+    def score_for(word)
+      case word.length
+      when 0..3
+        0
+      when 4
+        1
+      when 5
+        2
+      when 6
+        3
+      when 7
+        5
+      else
+        11
       end
     end
 

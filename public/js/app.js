@@ -93,6 +93,7 @@ game.process_commands = function(commands) {
         $('#players li').remove();
         $('#words').hide();
         $('#start_game').hide();
+        $('#scores').hide();
         $('#board td').html('');
         break;
 
@@ -101,6 +102,7 @@ game.process_commands = function(commands) {
         $('#status').html("Game starting...");
         $('#time_remaining').fadeIn();
         $('#start_game').fadeOut();
+        $('#scores').fadeOut();
         var expires = Date.parse(command.expires);
         var diff = expires - Date.now();
         setTimeout('game.update_state()', diff);
@@ -157,6 +159,31 @@ game.process_commands = function(commands) {
 
         $('#vote').fadeOut();
         $('#votes').fadeOut();
+
+        $('#scores ul').html();
+        $('#scores').fadeIn();
+        $.each(command.results, function(i, r) {
+          var $li = $('<li></li>').hide();
+          $li.append(
+            '<p>' + r.name +
+            ' <span class="score">' + r.score + '</span></p>' +
+            '<ul class="words"></ul>'
+          );
+          var $words = $li.find('.words');
+          $.each(r.words.accepted, function(j, w) {;
+            $words.append('<li>' + w + '</li>');
+          });
+          $.each(r.words.rejected, function(j, w) {
+            $words.append('<li class="rejected">' + w + '</li>');
+          });
+          $.each(r.words.duplicates, function(j, w) {
+            $words.append('<li class="canceled">' + w + '</li>');
+          });
+
+          $('#scores > ul').append($li);
+          $li.fadeIn();
+        });
+
 
         break;
 

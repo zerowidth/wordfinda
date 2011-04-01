@@ -6,9 +6,13 @@ gem "dalli"
 gem "hiredis"
 gem "redis"
 
+gem "dmarkow-raspell",
+  :git => "https://github.com/dmarkow/raspell.git",
+  :require => "raspell"
+
 group :development do
   gem "heroku"
-  gem "shotgun"
+  gem "thin"
 end
 
 group :test do

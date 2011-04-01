@@ -1,10 +1,18 @@
+GIT
+  remote: https://github.com/dmarkow/raspell.git
+  revision: e8506a6b06085fc8514a649c47e0f9c8d85f9359
+  specs:
+    dmarkow-raspell (1.2.2)
+
 GEM
   remote: http://rubygems.org/
   specs:
     activesupport (3.0.5)
     configuration (1.2.0)
+    daemons (1.1.0)
     dalli (1.0.3)
     diff-lcs (1.1.2)
+    eventmachine (0.12.10)
     heroku (1.19.1)
       activesupport (>= 2.1.0)
       launchy (~> 0.3.2)
@@ -41,11 +49,13 @@ GEM
     selenium-client (1.2.18)
     selenium-rc (2.3.2)
       selenium-client (>= 1.2.18)
-    shotgun (0.9)
-      rack (>= 1.0)
     sinatra (1.2.1)
       rack (~> 1.1)
       tilt (< 2.0, >= 1.2.2)
+    thin (1.2.10)
+      daemons (>= 1.0.9)
+      eventmachine (>= 0.12.6)
+      rack (>= 1.0.0)
     tilt (1.2.2)
 
 PLATFORMS
@@ -53,6 +63,7 @@ PLATFORMS
 
 DEPENDENCIES
   dalli
+  dmarkow-raspell!
   heroku
   hiredis
   jasmine
@@ -60,5 +71,5 @@ DEPENDENCIES
   rack-test
   redis
   rspec (~> 2.5.0)
-  shotgun
   sinatra (~> 1.2.1)
+  thin

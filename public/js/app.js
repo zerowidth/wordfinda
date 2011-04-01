@@ -8,7 +8,7 @@ game.init = function(commands) {
   this.bind_events();
   this.process_commands(commands);
 
-  setInterval('game.update_state()', 5000);
+  setInterval('game.update_state()', 1000);
 };
 
 game.bind_events = function() {

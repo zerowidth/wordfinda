@@ -1,6 +1,10 @@
 module WordFinda
   class Game
 
+    WAIT_TIME = 10
+    GAME_TIME = 180
+    VOTE_TIME = 30
+
     attr_reader :cache, :key
     attr_reader :data
 
@@ -82,14 +86,14 @@ module WordFinda
       if state == :waiting
         now = Time.now
         @data[:state] = :starting
-        add_command :game_starting, :expires => now + 5
+        add_command :game_starting, :expires => now + WAIT_TIME
       end
     end
 
     def start_game
       @data[:state] = :in_progress
       board = @data[:board] = Board.generate.map { |c| c.capitalize }
-      expires = Time.now + 30 # 180
+      expires = Time.now + GAME_TIME
       add_command :game_begin, :expires => expires, :board => board
     end
 
@@ -219,7 +223,7 @@ module WordFinda
 
     def next_vote
       if voting[:unknown].first
-        expires = Time.now + 30
+        expires = Time.now + VOTE_TIME
         players_for_vote.each do |player_id|
           add_command :vote,
             :word => voting[:unknown].first,

@@ -141,10 +141,10 @@
 </div>
 
 
-<!--
+<% if params[:debug] %>
 <div>
   <pre>
   <%= require 'pp'; h @game.data.pretty_inspect %>
   </pre>
 </div>
--->
+<% end %>

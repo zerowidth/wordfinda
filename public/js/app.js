@@ -85,9 +85,7 @@ game.process_commands = function(commands) {
 
       // game state changes
 
-      case 'game_waiting':
-        self.state = 'waiting';
-        $('#status').html("Waiting for players...");
+      case 'reset':
         $('#time_remaining').fadeOut();
         $('#words li').remove();
         $('#players li').remove();
@@ -95,6 +93,11 @@ game.process_commands = function(commands) {
         $('#start_game').hide();
         $('#scores').hide();
         $('#board td').html('');
+        break;
+
+      case 'game_waiting':
+        self.state = 'waiting';
+        $('#status').html("Waiting for players...");
         break;
 
       case 'game_starting':
@@ -184,6 +187,9 @@ game.process_commands = function(commands) {
           $li.fadeIn();
         });
 
+        setTimeout(function() {
+          $('#start_game').fadeIn();
+        }, 10000);
 
         break;
 

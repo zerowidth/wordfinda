@@ -6,22 +6,31 @@ module WordFinda
 
     def initialize(cache, key)
       @cache, @key = cache, key
-      unless @data = cache.get(key)
-        @data = {
-          :state => :waiting, # :starting :in_progress :voting :results
-          :commands => [],
-          :players => {},
-          :board => nil,
-          :player_words => {},
-          :voting => {
-            :unknown => [],
-            :accepted => [],
-            :rejected => []
-          }
-        }
-        add_command :game_waiting
-      end
+      load_from_cache
       update_state
+    end
+
+    def load_from_cache
+      unless @data = cache.get(key)
+        reset
+      end
+    end
+
+    def reset
+      @data = {
+        :state => :waiting, # :starting :in_progress :voting :results
+        :commands => [],
+        :players => {},
+        :board => nil,
+        :player_words => {},
+        :voting => {
+          :unknown => [],
+          :accepted => [],
+          :rejected => []
+        }
+      }
+      add_command :reset
+      add_command :game_waiting
     end
 
     def save
@@ -29,6 +38,7 @@ module WordFinda
     end
 
     def destroy
+      @data = nil
       cache.delete(key)
     end
 
@@ -54,9 +64,16 @@ module WordFinda
     end
 
     def process_command(cmd, player_id)
+      puts "#{state.inspect} - #{cmd["command"]}"
       case cmd["command"]
       when "start_game"
-        wait_for_start
+        if state == :waiting
+          wait_for_start
+        elsif state == :results
+          destroy
+          reset
+          wait_for_start
+        end
       when "submit_word"
         submit_word_for_player(cmd["word"].downcase.strip, player_id)
       when "player_vote"
@@ -269,13 +286,22 @@ module WordFinda
         params.merge(:cmd => cmd, :seq => i)
       end
 
-      latest_game = converted.reverse.detect { |cmd| cmd[:cmd].to_s.start_with?("game_") }
+      latest_game = converted.reverse.detect do |cmd|
+        cmd[:cmd].to_s.start_with?("game_")
+      end
+
       latest_vote = converted.reverse.detect do |cmd|
         cmd[:cmd] == :vote && cmd[:player_id] == player_id
       end
 
       return converted.delete_if do |cmd|
+        # remove the reset command if the client's seen commands before,
+        # but only if it's seen commands that are available.
+        (last && last <= converted.size && cmd[:cmd] == "reset") ||
+
         # remove commands before than the last seen command, if applicable
+        # ignore the last seen if the game has been reset, i.e. the
+        # number of commands is less than the number the client claims to have seen.
         (last && last <= converted.size && cmd[:seq] <= last) ||
 
         # remove any game state commands except the latest one

@@ -52,11 +52,7 @@ module WordFinda
       when :starting
         start_game
       when :in_progress
-        if voting_required?
-          start_voting
-        else
-          show_results
-        end
+        start_voting
       when :voting
         save_current_vote
         next_vote
@@ -122,25 +118,45 @@ module WordFinda
       end
     end
 
-    def voting_required?
-      player_words.any? { |id, words| words[:require_vote].size > 0 }
-    end
-
     def start_voting
-      @data[:state] = :voting
-      add_command :game_vote, :board => board.board.map { |c| c.capitalize }
 
+      # remove duplicates
+      all_words = Hash.new { |h,k| h[k] = [] }
       player_words.each do |player_id, words|
-        if words.all? { |key, list| list.empty? }
-          # sorry, this player can't vote, no words were submitted
-          add_command :no_voting, :player_id => player_id
-        else
-          # let everyone know this player is allowed to participate
-          add_command :player_voting, :id => player_id, :name => players[player_id]
-          voting[:unknown].concat words[:require_vote]
+        words[:accepted].each { |word| all_words[word] << player_id }
+        words[:require_vote].each { |word| all_words[word] << player_id }
+      end
+      all_words.each do |word, players|
+        if players.size > 1
+          players.each do |player_id|
+            player_words[player_id][:accepted].delete word
+            player_words[player_id][:require_vote].delete word
+            player_words[player_id][:duplicates] << word
+          end
         end
       end
-      next_vote
+
+      if player_words.any? { |id, words| words[:require_vote].size > 0 }
+
+        @data[:state] = :voting
+        add_command :game_vote, :board => board.board.map { |c| c.capitalize }
+
+        player_words.each do |player_id, words|
+          if words.all? { |key, list| list.empty? }
+            # sorry, this player can't vote, no words were submitted
+            add_command :no_voting, :player_id => player_id
+          else
+            # let everyone know this player is allowed to participate
+            add_command :player_voting, :id => player_id, :name => players[player_id]
+            voting[:unknown].concat words[:require_vote]
+          end
+        end
+
+        next_vote
+      else
+
+        show_results
+      end
     end
 
     def next_vote
@@ -195,20 +211,6 @@ module WordFinda
 
     def show_results
       @data[:state] = :results
-
-      # find and remove duplicates first
-      all_words = Hash.new { |h,k| h[k] = [] }
-      player_words.each do |player_id, words|
-        words[:accepted].each { |word| all_words[word] << player_id }
-      end
-      all_words.each do |word, players| 
-        if players.size > 1
-          players.each do |player_id|
-            player_words[player_id][:accepted].delete word
-            player_words[player_id][:duplicates] << word
-          end
-        end
-      end
 
       results = []
 

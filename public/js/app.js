@@ -272,7 +272,7 @@ game.process_commands = function(commands) {
 
       case 'player_vote':
 
-        if(command.vote == "true") {
+        if(command.vote) {
           log($('#votes #vote_' + command.id).length);
           $('#votes #vote_' + command.id).removeClass('no').addClass('yes');
         }

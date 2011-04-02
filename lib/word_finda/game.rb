@@ -54,8 +54,7 @@ module WordFinda
       when :in_progress
         start_voting
       when :voting
-        save_current_vote
-        next_vote
+        check_for_next_vote true # expired!
       end
     end
 
@@ -73,7 +72,7 @@ module WordFinda
       when "submit_word"
         submit_word_for_player(cmd["word"].downcase.strip, player_id)
       when "player_vote"
-        submit_vote_for_player(cmd["word"], player_id, cmd["vote"])
+        submit_vote_for_player(cmd["word"], player_id, cmd["vote"] != "false")
       else
         puts "unknown command: #{cmd.inspect}"
       end
@@ -108,13 +107,11 @@ module WordFinda
     end
 
     def submit_vote_for_player(word, player_id, vote)
-      add_command :player_vote, :id => player_id, :word => word, :vote => vote
-      if word == voting[:unknown].first &&
-        player_words[player_id][:require_vote].include?(word) && vote == "false"
-        player_words[player_id][:require_vote].delete(word)
-        player_words[player_id][:rejected] << word
-        voting[:rejected] << voting[:unknown].shift
-        next_vote
+      if word == voting[:unknown].first
+        add_command :player_vote, :id => player_id, :word => word, :vote => vote
+        check_for_next_vote
+      else
+        puts "wtf vote for word not yours"
       end
     end
 
@@ -159,24 +156,16 @@ module WordFinda
       end
     end
 
-    def next_vote
-      if voting[:unknown].first
-        expires = Time.now + 30
-        players_for_vote.each do |player_id|
-          add_command :vote,
-            :word => voting[:unknown].first,
-            :player_id => player_id,
-            :expires => expires
-        end
-      else
-        # done voting
-        show_results
-      end
+    def voting_players
+      player_words.reject do |player_id, words|
+        words.all? { |key, list| list.empty? }
+      end.map { |player_id, words| player_id }
     end
 
-    def save_current_vote
+    def check_for_next_vote(expire_now = false)
       word = voting[:unknown].first
       votes = {:yes => [], :no => []}
+
       commands.select do |command|
         command.first == :player_vote && command.last[:word] == word
       end.each do |command|
@@ -190,22 +179,56 @@ module WordFinda
         end
       end
 
-      player_id = player_words.detect do |id, words|
+      whose_word = player_words.detect do |id, words|
         words[:require_vote].include?(word)
       end.first
 
-      return unless player_id
+      minimum_votes = voting_players.size / 2.0
 
-      if votes[:no].size >= votes[:yes].size
-        # reject
-        player_words[player_id][:require_vote].delete(word)
-        player_words[player_id][:rejected] << word
-        voting[:rejected] << voting[:unknown].shift
+      if expire_now
+        if votes[:yes].size > votes[:no].size
+          # accept
+          player_words[whose_word][:require_vote].delete(word)
+          player_words[whose_word][:accepted] << word
+          voting[:accepted] << voting[:unknown].shift
+          next_vote
+        else
+          # reject
+          player_words[whose_word][:require_vote].delete(word)
+          player_words[whose_word][:rejected] << word
+          voting[:rejected] << voting[:unknown].shift
+          next_vote
+        end
       else
-        # accept
-        player_words[player_id][:require_vote].delete(word)
-        player_words[player_id][:accepted] << word
-        voting[:accepted] << voting[:unknown].shift
+        if votes[:no].include?(whose_word) || votes[:no].size >= minimum_votes
+          # reject
+          player_words[whose_word][:require_vote].delete(word)
+          player_words[whose_word][:rejected] << word
+          voting[:rejected] << voting[:unknown].shift
+          next_vote
+        elsif votes[:yes].size > minimum_votes
+          # accept
+          player_words[whose_word][:require_vote].delete(word)
+          player_words[whose_word][:accepted] << word
+          voting[:accepted] << voting[:unknown].shift
+          next_vote
+        end
+      end
+
+    end
+
+    def next_vote
+      if voting[:unknown].first
+        expires = Time.now + 30
+        players_for_vote.each do |player_id|
+          add_command :vote,
+            :word => voting[:unknown].first,
+            :player_id => player_id,
+            :expires => expires
+        end
+      else
+        # done voting
+        show_results
       end
     end
 

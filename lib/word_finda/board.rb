@@ -71,7 +71,7 @@ module WordFinda
         found ||= find_word(new_word, new_visited, location) # recursive call
       end
 
-      found
+      return found
     end
 
     def find_cube(cube, visited, adjacent_to)
@@ -94,9 +94,12 @@ module WordFinda
       (key1x-key2x).abs <= 1 && (key1y-key2y).abs <= 1
     end
 
-    # This could be implemented as String#to_array, but it's game-specific functionality.
+    # 'q' is last to handle the case where words like valqqqid were recognized
+    # as "v a l i d". This returns the q's, which don't exist in the board, and thus
+    # the word will be rejected.
+    # String#scan does the expected thing with the regex, so the qu matches first.
     def word_to_array(word)
-      word.downcase.scan /[a-pr-z]|qu/
+      word.downcase.scan /[a-pr-z]|qu|q/
     end
 
   end

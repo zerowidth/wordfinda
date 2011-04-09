@@ -6,7 +6,6 @@ Bundler.require :default
 
 module WordFinda
 
-  require "word_finda/state"
   require "word_finda/game"
   require "word_finda/board"
 

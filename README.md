@@ -16,11 +16,11 @@ state, even on reload.
 
 ## Usage
 
-    bundle && bundle thin -r config.ru
+    bundle && bundle exec thin -r config.ru start
 
 ## Contributing
 
-Fork, patch, pull request. I'd ask for tests if there were any.
+Fork, patch, pull request, or shoot me an email.
 
 ## License
 

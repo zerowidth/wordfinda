@@ -55,7 +55,6 @@ DEPENDENCIES
   dmarkow-raspell!
   heroku
   hiredis
-  jasmine
   json
   rack-test
   redis
